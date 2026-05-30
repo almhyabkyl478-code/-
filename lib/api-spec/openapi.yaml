@@ -1,0 +1,319 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: Seha Sick Leave Management API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: leaves
+    description: Sick leave operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /leaves:
+    get:
+      operationId: listLeaves
+      tags: [leaves]
+      summary: List all sick leaves
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        "200":
+          description: List of sick leaves
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeavesPage"
+    post:
+      operationId: createLeave
+      tags: [leaves]
+      summary: Create a sick leave record
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LeaveInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Leave"
+
+  /leaves/stats:
+    get:
+      operationId: getLeaveStats
+      tags: [leaves]
+      summary: Get dashboard statistics
+      responses:
+        "200":
+          description: Stats summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LeaveStats"
+
+  /leaves/inquiry:
+    get:
+      operationId: inquireLeave
+      tags: [leaves]
+      summary: Inquire about a leave by ID number and leave code
+      parameters:
+        - name: idNumber
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: leaveCode
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Leave found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Leave"
+        "404":
+          description: Not found
+
+  /leaves/{id}:
+    get:
+      operationId: getLeave
+      tags: [leaves]
+      summary: Get a single sick leave record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Sick leave record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Leave"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteLeave
+      tags: [leaves]
+      summary: Delete a sick leave record
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    Leave:
+      type: object
+      required:
+        - id
+        - leaveCode
+        - idNumber
+        - patientNameAr
+        - patientNameEn
+        - admissionDateGregorian
+        - dischargeDateGregorian
+        - issueDate
+        - hospitalNameAr
+        - hospitalNameEn
+        - doctorNameAr
+        - doctorNameEn
+        - createdAt
+      properties:
+        id:
+          type: integer
+        leaveCode:
+          type: string
+        idNumber:
+          type: string
+        patientNameAr:
+          type: string
+        patientNameEn:
+          type: string
+        nationalityAr:
+          type: ["string", "null"]
+        nationalityEn:
+          type: ["string", "null"]
+        employerAr:
+          type: ["string", "null"]
+        employerEn:
+          type: ["string", "null"]
+        doctorNameAr:
+          type: string
+        doctorNameEn:
+          type: string
+        positionAr:
+          type: ["string", "null"]
+        positionEn:
+          type: ["string", "null"]
+        admissionDateGregorian:
+          type: string
+        admissionDateHijri:
+          type: ["string", "null"]
+        dischargeDateGregorian:
+          type: string
+        dischargeDateHijri:
+          type: ["string", "null"]
+        issueDate:
+          type: string
+        hospitalNameAr:
+          type: string
+        hospitalNameEn:
+          type: string
+        reportTime:
+          type: ["string", "null"]
+        durationDays:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+
+    LeaveInput:
+      type: object
+      required:
+        - leaveCode
+        - idNumber
+        - patientNameAr
+        - patientNameEn
+        - admissionDateGregorian
+        - dischargeDateGregorian
+        - issueDate
+        - hospitalNameAr
+        - hospitalNameEn
+        - doctorNameAr
+        - doctorNameEn
+      properties:
+        leaveCode:
+          type: string
+        idNumber:
+          type: string
+        patientNameAr:
+          type: string
+        patientNameEn:
+          type: string
+        nationalityAr:
+          type: string
+        nationalityEn:
+          type: string
+        employerAr:
+          type: string
+        employerEn:
+          type: string
+        doctorNameAr:
+          type: string
+        doctorNameEn:
+          type: string
+        positionAr:
+          type: string
+        positionEn:
+          type: string
+        admissionDateGregorian:
+          type: string
+        admissionDateHijri:
+          type: string
+        dischargeDateGregorian:
+          type: string
+        dischargeDateHijri:
+          type: string
+        issueDate:
+          type: string
+        hospitalNameAr:
+          type: string
+        hospitalNameEn:
+          type: string
+        reportTime:
+          type: string
+        durationDays:
+          type: integer
+
+    LeavesPage:
+      type: object
+      required:
+        - data
+        - total
+        - page
+        - limit
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/Leave"
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    LeaveStats:
+      type: object
+      required:
+        - totalLeaves
+        - todayLeaves
+        - thisMonthLeaves
+        - avgDuration
+        - recentLeaves
+      properties:
+        totalLeaves:
+          type: integer
+        todayLeaves:
+          type: integer
+        thisMonthLeaves:
+          type: integer
+        avgDuration:
+          type: number
+        recentLeaves:
+          type: array
+          items:
+            $ref: "#/components/schemas/Leave"
